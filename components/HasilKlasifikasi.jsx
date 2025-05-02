@@ -7,21 +7,28 @@ import { useRouter } from "next/navigation";
 const HasilKlasifikasi = ({ label, confidence, onReset }) => {
   const router = useRouter();
 
-  const handleSelesai = () => {
-    onReset(); // Reset kamera
-    router.push("/"); // Kembali ke halaman utama
-  
-    // Tunggu beberapa saat sampai halaman siap, baru scroll manual
+  const handleSelesai = async () => {
+    // 1. Arahkan ke halaman utama dengan hash
+    await router.push("/#klasifikasi");
+
+    // 2. Scroll manual untuk memastikan posisi benar
     setTimeout(() => {
       const target = document.getElementById("klasifikasi");
       if (target) {
-        const yOffset = -70; // offset header
-        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        const y = target.getBoundingClientRect().top + window.pageYOffset - 70;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
-    }, 100); // delay agar router.push selesai
+
+      // 3. Paksa trigger observer
+      window.dispatchEvent(new Event("scroll"));
+
+      // 4. Hapus hash dari URL agar bersih
+      window.history.replaceState(null, "", "/");
+
+      // 5. Tutup modal kamera (reset state)
+      onReset();
+    }, 600);
   };
-  
 
   return (
     <div className="bg-[#F7F8FC] rounded-[20px] p-6 max-w-[900px] mx-auto flex flex-col md:flex-row items-center md:items-start gap-6 shadow-lg">
